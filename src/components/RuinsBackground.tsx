@@ -2,6 +2,13 @@ import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 
 export function RuinsBackground() {
+  const [vh, setVh] = useState(900);
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   const embers = useMemo(
     () =>
       Array.from({ length: 40 }, (_, i) => ({

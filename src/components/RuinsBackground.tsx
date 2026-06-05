@@ -72,7 +72,7 @@ export function RuinsBackground() {
             opacity: 0.55,
           }}
           animate={{
-            y: [0, -window?.innerHeight || -800],
+            y: [0, -vh - 40],
             x: [0, e.drift],
             opacity: [0, 0.7, 0],
           }}

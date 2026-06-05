@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function RuinsBackground() {
   const embers = useMemo(

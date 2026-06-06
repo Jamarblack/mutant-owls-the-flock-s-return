@@ -1,280 +1,177 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
-import { OwlInput } from "./OwlInput";
-import { PerchingOwl } from "./PerchingOwl";
-import owlLogo from "@/assets/owl-logo.png.asset.json";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Twitter, Heart, MessageSquare, Repeat2, ArrowRight } from 'lucide-react';
+import { OwlInput } from './OwlInput'; 
 
-interface Props {
-  onExit: () => void;
-}
+export default function Wizard() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  
+  // Form State
+  const [xHandle, setXHandle] = useState('');
+  const [retweetLink, setRetweetLink] = useState('');
+  const [commentLink, setCommentLink] = useState('');
+  const [wallet, setWallet] = useState('');
 
-interface FormState {
-  handle: string;
-  followed: boolean;
-  liked: boolean;
-  quoteLink: string;
-  commentLink: string;
-  wallet: string;
-}
+  // Validation Logic
+  const isStep1Valid = xHandle.startsWith('@') && xHandle.length > 2;
+  const isStep2Valid = retweetLink.includes('x.com') && commentLink.includes('x.com');
+  const isStep3Valid = wallet.startsWith('0x') && wallet.length === 42;
 
-const initial: FormState = {
-  handle: "",
-  followed: false,
-  liked: false,
-  quoteLink: "",
-  commentLink: "",
-  wallet: "",
-};
-
-const STEPS = ["Initiation", "Rites", "Vault", "Arrival"] as const;
-
-export function Wizard({ onExit }: Props) {
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState<FormState>(initial);
-  const [focused, setFocused] = useState<HTMLElement | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
-    setForm((f) => ({ ...f, [k]: v }));
-
-  const validate = (): boolean => {
-    const e: Record<string, string> = {};
-    if (step === 0) {
-      if (!form.handle.startsWith("@") || form.handle.length < 2)
-        e.handle = "Handle must begin with @";
-    }
-    if (step === 1) {
-      if (!form.followed) e.followed = "Required";
-      if (!form.liked) e.liked = "Required";
-      if (!form.quoteLink.startsWith("http")) e.quoteLink = "Paste a valid link";
-      if (!form.commentLink.startsWith("http")) e.commentLink = "Paste a valid link";
-    }
-    if (step === 2) {
-      if (!/^0x[a-fA-F0-9]{40}$/.test(form.wallet))
-        e.wallet = "Must start with 0x and be 42 chars";
-    }
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const next = () => {
-    if (validate()) setStep((s) => Math.min(s + 1, 3));
-  };
-  const back = () => setStep((s) => Math.max(s - 1, 0));
-
-  const reset = () => {
-    setForm(initial);
-    setErrors({});
-    setStep(0);
-    onExit();
+  // Framer Motion Variants
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 100 : -100,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.4, type: 'spring', bounce: 0.2 }
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 100 : -100,
+      opacity: 0,
+      transition: { duration: 0.3 }
+    })
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16 relative">
-      <PerchingOwl target={focused} />
-
-      {/* Stepper */}
-      <div className="mb-10 flex items-center gap-3">
-        {STEPS.map((label, i) => (
-          <div key={label} className="flex items-center gap-3">
-            <div
-              className={
-                "h-9 w-9 rounded-full grid place-items-center text-xs font-display border transition-all " +
-                (i <= step
-                  ? "border-[color:var(--ember)] text-foreground bg-[color-mix(in_oklab,var(--ember)_15%,transparent)] shadow-[0_0_18px_color-mix(in_oklab,var(--ember)_40%,transparent)]"
-                  : "border-border text-muted-foreground")
-              }
-            >
-              {i < step ? <Check size={14} /> : i + 1}
-            </div>
-            {i < STEPS.length - 1 && (
-              <div className="w-10 h-px bg-border" />
-            )}
-          </div>
-        ))}
+    <div className="relative min-h-screen bg-transperent text-stone-300 flex items-center justify-center p-4 overflow-hidden">
+      
+      {/* Idle Owl Position (Top Right Corner) */}
+      <div className="absolute top-24 right-12 hidden md:block z-50">
+        <motion.div layoutId="global-flying-owl" className="opacity-40 hover:opacity-100 transition-opacity">
+           <img 
+            src="/owl-icon.png" 
+            alt="Idle Owl" 
+            className="w-12 h-12 grayscale hover:grayscale-0 transition-all duration-300"
+          />
+        </motion.div>
       </div>
 
-      <div className="w-full max-w-xl glass-panel rounded-3xl p-8 md:p-10 relative overflow-hidden">
-        <div className="flex items-center gap-3 mb-6">
-          <img src={owlLogo.url} alt="" className="w-8 h-8 opacity-80" />
-          <span className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground">
-            Step {step + 1} · {STEPS[step]}
-          </span>
+      {/* Glassmorphism Card */}
+      <div className="relative z-10 w-full max-w-lg bg-[#0B0F19]/80 backdrop-blur-xl border border-stone-800 p-8 shadow-2xl min-h-[500px] flex flex-col">
+        
+        {/* Progress Indicators */}
+        <div className="flex gap-2 mb-8 justify-center">
+          {[1, 2, 3, 4].map((i) => (
+            <div 
+              key={i} 
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${step >= i ? 'bg-[#FFBF00] shadow-[0_0_10px_rgba(255,191,0,0.5)]' : 'bg-stone-800'}`} 
+            />
+          ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {step === 0 && (
-              <div className="space-y-6">
-                <h2 className="font-display text-3xl md:text-4xl text-foreground text-ember-glow">
-                  Identify Yourself to the Flock.
-                </h2>
-                <p className="text-muted-foreground">
-                  Your name will be inscribed in the ruins.
-                </p>
-                <OwlInput
-                  label="X (Twitter) Handle"
-                  placeholder="@yourname"
-                  value={form.handle}
-                  onChange={(e) => update("handle", e.target.value)}
-                  onFocusElement={setFocused}
-                  error={errors.handle}
+        <AnimatePresence mode="wait" custom={1}>
+          
+          {/* STEP 1: X Handle */}
+          {step === 1 && (
+            <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col h-full flex-1">
+              <h2 className="text-3xl font-serif text-[#FFBF00] mb-2 uppercase tracking-widest">Identify Yourself</h2>
+              <p className="text-stone-400 mb-8">Enter your X handle to join the flock.</p>
+              
+              <div className="relative mb-auto">
+                <OwlInput 
+                  value={xHandle}
+                  onChange={(e) => setXHandle(e.target.value)}
+                  placeholder="@yourhandle"
+                  isValid={xHandle.length === 0 || isStep1Valid}
                 />
               </div>
-            )}
 
-            {step === 1 && (
-              <div className="space-y-6">
-                <h2 className="font-display text-3xl md:text-4xl text-foreground text-ember-glow">
-                  Prove Your Loyalty.
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <RuneTask
-                    label="Follow the Flock"
-                    href="https://x.com/intent/follow?screen_name=MutantOwls"
-                    done={form.followed}
-                    onDone={() => update("followed", true)}
-                  />
-                  <RuneTask
-                    label="Like the Prophecy"
-                    href="https://x.com/MutantOwls"
-                    done={form.liked}
-                    onDone={() => update("liked", true)}
-                  />
-                </div>
-                <OwlInput
-                  label="Quote the Prophecy (Retweet link)"
-                  placeholder="https://x.com/..."
-                  value={form.quoteLink}
-                  onChange={(e) => update("quoteLink", e.target.value)}
-                  onFocusElement={setFocused}
-                  error={errors.quoteLink}
-                />
-                <OwlInput
-                  label="Speak the Lore (Comment link)"
-                  placeholder="https://x.com/..."
-                  value={form.commentLink}
-                  onChange={(e) => update("commentLink", e.target.value)}
-                  onFocusElement={setFocused}
-                  error={errors.commentLink}
-                />
-                {(errors.followed || errors.liked) && (
-                  <p className="text-xs text-destructive">
-                    Complete all rites to continue.
-                  </p>
-                )}
-              </div>
-            )}
+              <button 
+                disabled={!isStep1Valid}
+                onClick={() => setStep(2)}
+                className={`mt-8 py-4 flex justify-center items-center gap-2 uppercase tracking-widest font-bold transition-all ${isStep1Valid ? 'bg-[#FFBF00] text-black hover:shadow-[0_0_20px_rgba(255,191,0,0.4)]' : 'bg-stone-800 text-stone-500 cursor-not-allowed'}`}
+              >
+                Proceed <ArrowRight size={20} />
+              </button>
+            </motion.div>
+          )}
 
-            {step === 2 && (
-              <div className="space-y-6">
-                <h2 className="font-display text-3xl md:text-4xl text-foreground text-ember-glow">
-                  Prepare for the Drop.
-                </h2>
-                <p className="text-muted-foreground">
-                  Seal your vault — the flock will know where to find you.
-                </p>
-                <OwlInput
-                  label="EVM Wallet Address"
-                  placeholder="0x..."
-                  value={form.wallet}
-                  onChange={(e) => update("wallet", e.target.value)}
-                  onFocusElement={setFocused}
-                  error={errors.wallet}
-                  spellCheck={false}
+          {/* STEP 2: The Rites */}
+          {step === 2 && (
+            <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col h-full flex-1">
+              <h2 className="text-3xl font-serif text-[#FFBF00] mb-2 uppercase tracking-widest">Prove Your Loyalty</h2>
+              <p className="text-stone-400 mb-6 text-sm">Complete the rites to proceed.</p>
+              
+              <div className="space-y-4 mb-auto">
+                <a href="#" className="flex items-center gap-3 p-4 border border-stone-700 hover:border-[#FFBF00] hover:text-[#FFBF00] transition-colors group">
+                  <Twitter size={20} className="group-hover:text-[#FFBF00] text-stone-400" />
+                  <span className="tracking-widest uppercase text-sm">Follow the Flock</span>
+                </a>
+                <a href="#" className="flex items-center gap-3 p-4 border border-stone-700 hover:border-[#FFBF00] hover:text-[#FFBF00] transition-colors group">
+                  <Heart size={20} className="group-hover:text-[#FFBF00] text-stone-400" />
+                  <span className="tracking-widest uppercase text-sm">Like the Prophecy</span>
+                </a>
+                
+                <OwlInput 
+                  value={retweetLink} 
+                  onChange={(e) => setRetweetLink(e.target.value)} 
+                  placeholder="Paste Quote Link" 
+                  icon={Repeat2}
+                />
+                
+                <OwlInput 
+                  value={commentLink} 
+                  onChange={(e) => setCommentLink(e.target.value)} 
+                  placeholder="Paste Comment Link" 
+                  icon={MessageSquare}
                 />
               </div>
-            )}
 
-            {step === 3 && (
-              <div className="text-center space-y-6 py-6">
-                <motion.div
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 140, damping: 14 }}
-                  className="w-24 h-24 rounded-full mx-auto grid place-items-center btn-ember"
-                >
-                  <Check size={42} className="text-foreground" />
-                </motion.div>
-                <h2 className="font-display text-3xl md:text-4xl text-foreground text-ember-glow">
-                  The Ruins Remember Your Name.
-                </h2>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  You have successfully joined the flock. Await the return.
-                </p>
-                <button
-                  onClick={reset}
-                  className="btn-ember mt-4 px-8 py-3 rounded-full font-display uppercase tracking-[0.3em] text-sm"
-                >
-                  Return to Ruins
-                </button>
+              <button disabled={!isStep2Valid} onClick={() => setStep(3)} className={`mt-6 py-4 flex justify-center items-center gap-2 uppercase tracking-widest font-bold transition-all ${isStep2Valid ? 'bg-[#FFBF00] text-black hover:shadow-[0_0_20px_rgba(255,191,0,0.4)]' : 'bg-stone-800 text-stone-500 cursor-not-allowed'}`}>
+                Proceed <ArrowRight size={20} />
+              </button>
+            </motion.div>
+          )}
+
+          {/* STEP 3: The Vault */}
+          {step === 3 && (
+            <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col h-full flex-1">
+              <h2 className="text-3xl font-serif text-[#FFBF00] mb-2 uppercase tracking-widest">Prepare for the Drop</h2>
+              <p className="text-stone-400 mb-8">Secure your place in the ruins.</p>
+              
+              <div className="relative mb-auto">
+                <OwlInput 
+                  value={wallet}
+                  onChange={(e) => setWallet(e.target.value)}
+                  placeholder="0x... EVM Wallet Address"
+                  isValid={wallet.length === 0 || isStep3Valid}
+                />
               </div>
-            )}
-          </motion.div>
+
+              <button disabled={!isStep3Valid} onClick={() => setStep(4)} className={`mt-8 py-4 flex justify-center items-center gap-2 uppercase tracking-widest font-bold transition-all ${isStep3Valid ? 'bg-[#FFBF00] text-black hover:shadow-[0_0_20px_rgba(255,191,0,0.4)]' : 'bg-stone-800 text-stone-500 cursor-not-allowed'}`}>
+                Connect <ArrowRight size={20} />
+              </button>
+            </motion.div>
+          )}
+
+          {/* STEP 4: Success (WITH YOUR ACTUAL IMAGE) */}
+          {step === 4 && (
+            <motion.div key="step4" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col items-center justify-center h-full flex-1 text-center">
+              
+              <motion.img 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                src="/mutant-owl.png" 
+                alt="Welcome to the Flock"
+                className="w-48 h-48 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(255,191,0,0.6)] rounded-xl object-cover border border-[#FFBF00]/30"
+              />
+
+              <h2 className="text-4xl font-serif text-[#FFBF00] mb-4 uppercase tracking-widest">The Ruins Remember</h2>
+              <p className="text-stone-400 mb-8 max-w-sm">You have successfully joined the flock. Await the return.</p>
+              
+              <button onClick={() => navigate('/')} className="w-full py-4 uppercase tracking-widest font-bold bg-transparent border border-[#FFBF00] text-[#FFBF00] hover:bg-[#FFBF00] hover:text-black transition-all">
+                Return to Ruins
+              </button>
+            </motion.div>
+          )}
+
         </AnimatePresence>
-
-        {step < 3 && (
-          <div className="mt-10 flex items-center justify-between">
-            <button
-              onClick={step === 0 ? onExit : back}
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ChevronLeft size={16} />
-              {step === 0 ? "Back to Ruins" : "Back"}
-            </button>
-            <button
-              onClick={next}
-              className="btn-ember inline-flex items-center gap-2 px-7 py-3 rounded-full font-display uppercase tracking-[0.3em] text-xs"
-            >
-              Continue <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
       </div>
     </div>
-  );
-}
-
-function RuneTask({
-  label,
-  href,
-  done,
-  onDone,
-}: {
-  label: string;
-  href: string;
-  done: boolean;
-  onDone: () => void;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      onClick={() => setTimeout(onDone, 400)}
-      className={
-        "rune-card group rounded-xl px-4 py-4 flex items-center justify-between gap-3 transition-all hover:-translate-y-0.5 " +
-        (done ? "ring-1 ring-[color:var(--ember)]" : "")
-      }
-    >
-      <span className="font-display tracking-wider text-sm">{label}</span>
-      <span
-        className={
-          "h-7 w-7 rounded-full grid place-items-center border " +
-          (done
-            ? "bg-[color-mix(in_oklab,var(--ember)_30%,transparent)] border-[color:var(--ember)] text-foreground"
-            : "border-border text-muted-foreground")
-        }
-      >
-        {done ? <Check size={14} /> : <ChevronRight size={14} />}
-      </span>
-    </a>
   );
 }

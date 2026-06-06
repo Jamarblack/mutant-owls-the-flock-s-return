@@ -1,11 +1,11 @@
 import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import owlHooded from "@/assets/owl-hooded.png.asset.json";
+import owlHooded from "public/owl-red.png";
 
 interface Props {
-  /** The element the owl should perch on top of (focused input). null = idle */
+  
   target: HTMLElement | null;
-  /** Optional accessible label for the current target, used by screen readers */
+ 
   targetLabel?: string;
 }
 
@@ -15,7 +15,7 @@ export function PerchingOwl({ target, targetLabel }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const [announcement, setAnnouncement] = useState("");
 
-  // Compute idle position + keep it fresh on resize
+  
   useEffect(() => {
     const compute = () => {
       if (typeof window === "undefined") return;
@@ -29,7 +29,7 @@ export function PerchingOwl({ target, targetLabel }: Props) {
     return () => window.removeEventListener("resize", compute);
   }, []);
 
-  // Re-perch on scroll/resize while a target is active (keyboard nav may scroll)
+  
   useEffect(() => {
     if (!target) {
       controls.start({

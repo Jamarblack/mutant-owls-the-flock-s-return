@@ -1,128 +1,79 @@
-import { motion } from "framer-motion";
-import wordmark from "@/assets/wordmark.png.asset.json";
-import owlLogo from "@/assets/owl-logo.png.asset.json";
-import owlChar from "@/assets/owl-character.png.asset.json";
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
-interface Props {
-  onEnter: () => void;
-}
+export default function Landing() {
+  const navigate = useNavigate();
 
-const lore = [
-  "Long before the flock, there was the fall — kingdoms vanished and the old world fell to ruins.",
-  "Yet something remained, born of evolution and shaped by chaos. THE MUTANT OWLS.",
-  "The ruins remember their shadows. The stories remember their names.",
-  "The flock is coming. Choose your place now, before the story moves on without you.",
-];
+  // Animation variants for that cinematic staggered fade-in
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.8, delayChildren: 0.5 },
+    },
+  };
 
-export function Landing({ onEnter }: Props) {
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } },
+  };
+
   return (
-    <div className="relative">
-      {/* Hero */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <motion.img
-          src={wordmark.url}
-          alt="Mutant Owls — Legend of the Owls"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
-          className="w-full max-w-3xl mx-auto mb-12 select-none pointer-events-none"
-          style={{ filter: "drop-shadow(0 0 30px color-mix(in oklab, var(--ember) 40%, transparent))" }}
+    <div className="relative flex flex-col items-center justify-center bg-transparent pt-24 pb-12 w-full selection:bg-[#FFBF00] selection:text-black">
+      
+      {/* Main Lore Container */}
+      <motion.div 
+        className="relative z-10 max-w-4xl px-6 text-center flex flex-col items-center gap-12 min-h-[70vh] justify-center"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        
+        {/* THIS IS YOUR ACTUAL WORDMARK LOGO */}
+        <motion.img 
+          variants={itemVariants}
+          src="/wordmark.png" 
+          alt="Mutant Owls"
+          className="w-full max-w-lg mx-auto drop-shadow-[0_0_15px_rgba(255,191,0,0.3)]"
         />
 
-        <div className="max-w-2xl space-y-7">
-          {lore.map((line, i) => (
-            <motion.p
-              key={i}
-              initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ delay: 0.4 + i * 0.6, duration: 1 }}
-              className={
-                i === 1
-                  ? "font-serif text-2xl md:text-3xl text-foreground text-ember-glow tracking-wide"
-                  : "font-sans text-base md:text-lg text-muted-foreground italic"
-              }
-            >
-              {line}
-            </motion.p>
-          ))}
+        {/* The Prophecy */}
+        <div className="space-y-6 text-lg md:text-2xl font-light leading-relaxed max-w-2xl mx-auto text-stone-300">
+          <motion.p variants={itemVariants}>
+            Long before the flock, there was the fall, kingdoms vanished and the old world fell to ruins.
+          </motion.p>
+          <motion.p variants={itemVariants}>
+            Yet something remained, born of evolution and shaped by chaos, <span className="text-[#FFBF00] font-semibold">THE MUTANT OWLS</span>.
+          </motion.p>
+          <motion.p variants={itemVariants}>
+            The ruins remember their shadows, the stories remember their names.
+          </motion.p>
+          <motion.p variants={itemVariants} className="text-stone-400 italic">
+            The flock is coming, choose your place now before the story moves on without you.
+          </motion.p>
         </div>
 
-        <motion.button
-          onClick={onEnter}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 3.2, duration: 0.8 }}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          className="btn-ember mt-16 px-12 py-5 rounded-full font-display text-lg md:text-xl uppercase tracking-[0.35em] text-foreground relative"
-        >
-          <span className="relative z-10">Enter The Flock</span>
-          <motion.span
-            aria-hidden
-            className="absolute inset-0 rounded-full"
-            animate={{ opacity: [0.4, 0.9, 0.4] }}
-            transition={{ duration: 2.6, repeat: Infinity }}
-            style={{
-              boxShadow:
-                "0 0 40px color-mix(in oklab, var(--ember) 60%, transparent), 0 0 90px color-mix(in oklab, var(--ember) 40%, transparent)",
-            }}
-          />
-        </motion.button>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 4 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs uppercase tracking-[0.4em] text-muted-foreground"
-        >
-          ↓ Scroll into the ruins
+        {/* Action Button */}
+        <motion.div variants={itemVariants} className="mt-8">
+          <button
+            onClick={() => navigate('/initiation')}
+            className="group relative px-8 py-4 bg-transparent border border-[#FFBF00] text-[#FFBF00] font-bold tracking-widest uppercase overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,191,0,0.4)]"
+          >
+            <span className="relative z-10">Enter The Flock</span>
+            <div className="absolute inset-0 h-full w-full bg-[#FFBF00] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left opacity-10" />
+          </button>
         </motion.div>
-      </section>
+      </motion.div>
 
-      {/* About */}
-      <section className="min-h-screen flex items-center px-6 py-24">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.9 }}
-            className="relative"
-          >
-            <div
-              className="absolute -inset-8 rounded-full blur-3xl opacity-60"
-              style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--ember) 40%, transparent), transparent 70%)" }}
-            />
-            <img
-              src={owlChar.url}
-              alt="A Mutant Owl"
-              className="relative w-full max-w-md mx-auto rounded-3xl border border-border"
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.9, delay: 0.1 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <img src={owlLogo.url} alt="" className="w-10 h-10" />
-              <span className="text-xs uppercase tracking-[0.5em] text-muted-foreground">Codex I</span>
-            </div>
-            <h2 className="font-display text-5xl md:text-6xl text-foreground mb-8 text-ember-glow">
-              About<br />Mutant Owls
-            </h2>
-            <p className="text-lg leading-relaxed text-muted-foreground">
-              Mutant Owls is a story-driven, community-powered digital collectible project
-              built around a world shaped by change, resilience, and evolution. The project
-              explores a universe where the extraordinary outlasted the ordinary. Every
-              Mutant Owl is a unique character within an expanding narrative, giving
-              collectors the opportunity to own a piece of a larger story.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      {/* About Section */}
+      <div className="relative z-10 mt-32 max-w-3xl px-6 pb-24 text-center">
+        <h2 className="text-2xl text-stone-400 uppercase tracking-widest mb-6 border-b border-stone-800 pb-4 inline-block">
+          About Mutant Owls
+        </h2>
+        <p className="text-stone-400 leading-relaxed text-sm md:text-base">
+          Mutant Owls is a story driven, community powered digital collectible project built around a world shaped by change, resilience, and evolution. The project explores a universe where the extraordinary outlasted the ordinary. Every Mutant Owl is a unique character within an expanding narrative, giving collectors the opportunity to own a piece of a larger story.
+        </p>
+      </div>
     </div>
   );
 }

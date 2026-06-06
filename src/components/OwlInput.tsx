@@ -1,79 +1,54 @@
-import { forwardRef, InputHTMLAttributes, useId } from "react";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LucideIcon } from 'lucide-react';
 
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  error?: string;
-  onFocusElement?: (el: HTMLElement | null) => void;
+interface OwlInputProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  icon?: LucideIcon;
+  isValid?: boolean;
 }
 
-export const OwlInput = forwardRef<HTMLInputElement, Props>(function OwlInput(
-  {
-    label,
-    error,
-    onFocusElement,
-    onFocus,
-    onBlur,
-    disabled,
-    required,
-    className = "",
-    id: idProp,
-    ...rest
-  },
-  ref
-) {
-  const reactId = useId();
-  const id = idProp ?? reactId;
-  const errorId = `${id}-error`;
-  const labelId = `${id}-label`;
+export function OwlInput({ value, onChange, placeholder, icon: Icon, isValid = true }: OwlInputProps) {
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <label
-        id={labelId}
-        htmlFor={id}
-        className={
-          "block text-xs uppercase tracking-[0.3em] " +
-          (disabled ? "text-muted-foreground/50" : "text-muted-foreground")
-        }
-      >
-        {label}
-        {required && (
-          <span aria-hidden="true" className="ml-1 text-[color:var(--ember)]">
-            *
-          </span>
+    <div className="relative w-full">
+      <AnimatePresence>
+        {isFocused && (
+          <motion.div
+            layoutId="global-flying-owl"
+            className="absolute -top-10 right-4 z-20 pointer-events-none"
+            initial={{ opacity: 0, y: -20, rotate: -10 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
+            {/* THIS USES YOUR IMAGE FROM THE PUBLIC FOLDER */}
+            <img 
+              src="/owl-icon.png" 
+              alt="Perching Owl" 
+              className="w-12 h-12 drop-shadow-[0_0_15px_rgba(255,191,0,0.8)]"
+            />
+          </motion.div>
         )}
-      </label>
-      <input
-        ref={ref}
-        id={id}
-        disabled={disabled}
-        required={required}
-        aria-labelledby={labelId}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        aria-disabled={disabled || undefined}
-        onFocus={(e) => {
-          // Only announce/perch on enabled inputs the user can actually edit
-          if (!disabled) onFocusElement?.(e.currentTarget);
-          onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          onFocusElement?.(null);
-          onBlur?.(e);
-        }}
-        className={
-          "w-full px-4 py-3 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground/60 outline-none transition-all " +
-          "focus-visible:border-[color:var(--ember)] focus-visible:shadow-[0_0_0_1px_var(--ember),0_0_24px_color-mix(in_oklab,var(--ember)_35%,transparent)] " +
-          "disabled:cursor-not-allowed disabled:opacity-50 " +
-          className
-        }
-        {...rest}
-      />
-      {error && (
-        <p id={errorId} role="alert" className="text-xs text-destructive">
-          {error}
-        </p>
-      )}
+      </AnimatePresence>
+
+      <div className={`relative border-b-2 transition-all duration-300 ${isFocused ? 'border-[#FFBF00] bg-[#FFBF00]/5' : 'border-stone-700 hover:border-stone-500'}`}>
+        {Icon && (
+          <Icon size={18} className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isFocused ? 'text-[#FFBF00]' : 'text-stone-500'}`} />
+        )}
+        <input 
+          type="text"
+          value={value}
+          onChange={onChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder={placeholder}
+          className={`w-full bg-transparent p-4 text-white outline-none transition-all placeholder:text-stone-600 ${Icon ? 'pl-12' : ''}`}
+        />
+      </div>
     </div>
   );
-});
+}

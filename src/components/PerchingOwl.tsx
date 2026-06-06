@@ -1,6 +1,6 @@
 import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import owlHooded from "public/owl-red.png";
+import owlHooded from "public/owl-perching.png";
 
 interface Props {
   

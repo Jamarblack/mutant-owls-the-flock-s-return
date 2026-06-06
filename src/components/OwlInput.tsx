@@ -27,7 +27,7 @@ export function OwlInput({ value, onChange, placeholder, icon: Icon, isValid = t
           >
             {/* THIS USES YOUR IMAGE FROM THE PUBLIC FOLDER */}
             <img 
-              src="/owl-icon.png" 
+              src="/owl-perching.png" 
               alt="Perching Owl" 
               className="w-12 h-12 drop-shadow-[0_0_15px_rgba(255,191,0,0.8)]"
             />

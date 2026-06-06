@@ -80,8 +80,8 @@ export default function App() {
             <div className="w-9 h-9 rounded-full   flex items-center justify-center text-[#FFBF00] text-xs font-bold transition-transform group-hover:scale-110 shadow-[0_0_10px_rgba(255,191,0,0.3)]">
               <img src="public/owl-head.png" alt="" className="w-full h-full object-contain rounded-full" />
             </div>
-            <span className="font-serif tracking-[0.4em] text-sm uppercase flex text-[#FFBF00] drop-shadow-md">
-              <img src="public/" alt="Mutant Owls" />
+            <span className="font-serif  text-sm uppercase flex text-[#FFBF00] drop-shadow-md">
+              <img src="public/owl-text.svg" alt="Mutant Owls" className="w-60 h-full object-contain" />
             </span>
           </a>
           <ThemeToggle />

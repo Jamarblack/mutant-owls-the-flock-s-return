@@ -32,7 +32,7 @@ export default function Landing() {
         {/* THIS IS YOUR ACTUAL WORDMARK LOGO */}
         <motion.img 
           variants={itemVariants}
-          src="/wordmark.png" 
+          src="/owl-hood.png" 
           alt="Mutant Owls"
           className="w-full max-w-lg mx-auto drop-shadow-[0_0_15px_rgba(255,191,0,0.3)]"
         />
@@ -67,6 +67,7 @@ export default function Landing() {
 
       {/* About Section */}
       <div className="relative z-10 mt-32 max-w-3xl px-6 pb-24 text-center">
+        <img src="public/owl.png" alt="" />
         <h2 className="text-2xl text-stone-400 uppercase tracking-widest mb-6 border-b border-stone-800 pb-4 inline-block">
           About Mutant Owls
         </h2>

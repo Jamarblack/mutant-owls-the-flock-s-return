@@ -79,9 +79,10 @@ export default function App() {
                 <img src="/owl-head.png" alt="Mutant OWl" className="rounded-full" />
                 <span></span>
             </div>
-        <img src="/owl-text.svg" className="md:w-120 w-60 h-auto  " />   
+        
            
           </a>
+          <img src="/owl-text.svg" className="md:w-120 w-60 h-auto align-center  " />   
           <ThemeToggle />
         </header>
 

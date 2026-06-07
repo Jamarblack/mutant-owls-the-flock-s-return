@@ -32,7 +32,7 @@ export default function Landing() {
         {/* THIS IS YOUR ACTUAL WORDMARK LOGO */}
         <motion.img 
           variants={itemVariants}
-          src="/owl-hood.png" 
+          src="/owl-text.png" 
           alt="Mutant Owls"
           className="w-full max-w-lg mx-auto drop-shadow-[0_0_15px_rgba(255,191,0,0.3)]"
         />

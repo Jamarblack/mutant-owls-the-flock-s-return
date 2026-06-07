@@ -282,7 +282,7 @@ export default function Wizard() {
               <motion.img
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                src="/mutant-owl.png"
+                src="/owl-head.png"
                 alt="Welcome to the Flock"
                 className="w-48 h-48 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(255,191,0,0.6)] rounded-xl object-cover border border-[#FFBF00]/30"
               />

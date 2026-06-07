@@ -2,11 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Repeat2, CheckCircle, ExternalLink } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 import { OwlInput } from "./OwlInput";
+
+// REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
 
 export default function Wizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
   const [xHandle, setXHandle] = useState("");
@@ -20,18 +25,48 @@ export default function Wizard() {
     tag: false,
   });
 
-  // Simulate opening a link and "auto-marking" it as done
+ 
   const handleTaskClick = (taskKey: keyof typeof tasks, url: string) => {
-    window.open(url, "_blank"); // Open the Twitter link in a new tab
-    // Auto-mark as complete after 1.5 seconds to simulate validation
+    window.open(url, "_blank");
     setTimeout(() => {
       setTasks((prev) => ({ ...prev, [taskKey]: true }));
     }, 1500);
   };
 
+  // Google Sheets Submission Handler
+  const handleSubmitToSheet = async () => {
+    setIsSubmitting(true);
+    const loadingToast = toast.loading("Securing your place in the ruins...");
+
+    const formData = new FormData();
+    formData.append("X_Handle", xHandle);
+    formData.append("Retweet_Link", retweetLink);
+    formData.append("Wallet_Address", wallet);
+
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.result === "success") {
+        toast.success("Flock entry secured!", { id: loadingToast });
+        setStep(4); // Move to success screen
+      } else {
+        throw new Error("Failed to save");
+      }
+    } catch (error) {
+      console.error("Submission Error:", error);
+      toast.error("The ruins rejected the entry. Try again.", { id: loadingToast });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Validation Logic
   const isStep1Valid = xHandle.startsWith("@") && xHandle.length > 2;
-  // Step 2 is valid if all 3 tasks are clicked AND they pasted a valid link
   const isStep2Valid = tasks.follow && tasks.quote && tasks.tag && retweetLink.includes("x");
   const isStep3Valid = wallet.startsWith("0x") && wallet.length === 42;
 
@@ -55,6 +90,19 @@ export default function Wizard() {
 
   return (
     <div className="relative min-h-screen bg-transparent text-stone-300 flex items-center justify-center p-4 overflow-hidden">
+      
+      {/* Toast Notifications Provider - Styled to match the theme */}
+      <Toaster 
+        position="top-center" 
+        toastOptions={{
+          style: {
+            background: '#0B0F19',
+            color: '#FFBF00',
+            border: '1px solid #FFBF00',
+          },
+        }} 
+      />
+
       {/* Idle Owl Position (Top Right Corner) */}
       <div className="absolute top-24 right-12 hidden md:block z-50">
         <motion.div
@@ -62,7 +110,7 @@ export default function Wizard() {
           className="opacity-40 hover:opacity-100 transition-opacity"
         >
           <img
-            src="/owl-icon.png"
+            src="/owl-perching.png"
             alt="Idle Owl"
             className="w-12 h-12 grayscale hover:grayscale-0 transition-all duration-300"
           />
@@ -84,14 +132,7 @@ export default function Wizard() {
         <AnimatePresence mode="wait" custom={1}>
           {/* STEP 1: X Handle */}
           {step === 1 && (
-            <motion.div
-              key="step1"
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="flex flex-col h-full flex-1"
-            >
+            <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col h-full flex-1">
               <h2 className="text-3xl font-serif text-[#FFBF00] mb-2 uppercase tracking-widest">
                 Identify Yourself
               </h2>
@@ -116,16 +157,9 @@ export default function Wizard() {
             </motion.div>
           )}
 
-          {/* STEP 2: The Rites (REDESIGNED FOR CLARITY) */}
+          {/* STEP 2: The Rites */}
           {step === 2 && (
-            <motion.div
-              key="step2"
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="flex flex-col h-full flex-1"
-            >
+            <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col h-full flex-1">
               <h2 className="text-3xl font-serif text-[#FFBF00] mb-2 uppercase tracking-widest">
                 Prove Your Loyalty
               </h2>
@@ -135,19 +169,14 @@ export default function Wizard() {
 
               <div className="space-y-3 mb-auto">
                 {/* Task 1: Follow */}
-                <div
-                  className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.follow ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}
-                >
+                <div className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.follow ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}>
                   <div>
                     <h3 className="text-stone-200 text-sm font-medium tracking-wide">
                       Follow @MutantOwls on X
                     </h3>
                     <p className="text-stone-500 text-xs mt-1">Hit follow on the main account</p>
                   </div>
-                  <button
-                    onClick={() => handleTaskClick("follow", "https://twitter.com/")}
-                    className="shrink-0 ml-4"
-                  >
+                  <button onClick={() => handleTaskClick("follow", "https://x.com/MutantOwls")} className="shrink-0 ml-4">
                     {tasks.follow ? (
                       <CheckCircle className="text-[#FFBF00]" size={24} />
                     ) : (
@@ -159,9 +188,7 @@ export default function Wizard() {
                 </div>
 
                 {/* Task 2: Like & Quote */}
-                <div
-                  className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.quote ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}
-                >
+                <div className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.quote ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}>
                   <div>
                     <h3 className="text-stone-200 text-sm font-medium tracking-wide">
                       Like & Quote the Prophecy
@@ -170,10 +197,7 @@ export default function Wizard() {
                       Quote RT with "The ruins remember"
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleTaskClick("quote", "https://twitter.com/")}
-                    className="shrink-0 ml-4"
-                  >
+                  <button onClick={() => handleTaskClick("quote", "https://x.com/MutantOwls")} className="shrink-0 ml-4">
                     {tasks.quote ? (
                       <CheckCircle className="text-[#FFBF00]" size={24} />
                     ) : (
@@ -185,19 +209,14 @@ export default function Wizard() {
                 </div>
 
                 {/* Task 3: Tag Friends */}
-                <div
-                  className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.tag ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}
-                >
+                <div className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.tag ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}>
                   <div>
                     <h3 className="text-stone-200 text-sm font-medium tracking-wide">
                       Tag 2 friends in your post
                     </h3>
                     <p className="text-stone-500 text-xs mt-1">Bring the crew into the flock</p>
                   </div>
-                  <button
-                    onClick={() => handleTaskClick("tag", "https://twitter.com/")}
-                    className="shrink-0 ml-4"
-                  >
+                  <button onClick={() => handleTaskClick("tag", "https://x.com/MutantOwls")} className="shrink-0 ml-4">
                     {tasks.tag ? (
                       <CheckCircle className="text-[#FFBF00]" size={24} />
                     ) : (
@@ -210,7 +229,7 @@ export default function Wizard() {
 
                 {/* Input Verification */}
                 <div className="pt-4">
-                  <span className="text-xs uppercase tracking-widest text-stone-500 mb-2 block flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-widest text-stone-500 mb-2 flex items-center gap-2">
                     Your Quote Tweet Link 🔗
                   </span>
                   <OwlInput
@@ -237,14 +256,7 @@ export default function Wizard() {
 
           {/* STEP 3: The Vault */}
           {step === 3 && (
-            <motion.div
-              key="step3"
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="flex flex-col h-full flex-1"
-            >
+            <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col h-full flex-1">
               <h2 className="text-3xl font-serif text-[#FFBF00] mb-2 uppercase tracking-widest">
                 Prepare for the Drop
               </h2>
@@ -260,25 +272,18 @@ export default function Wizard() {
               </div>
 
               <button
-                disabled={!isStep3Valid}
-                onClick={() => setStep(4)}
-                className={`mt-8 py-4 flex justify-center items-center gap-2 uppercase tracking-widest font-bold transition-all ${isStep3Valid ? "bg-[#FFBF00] text-black hover:shadow-[0_0_20px_rgba(255,191,0,0.4)]" : "bg-stone-800 text-stone-500 cursor-not-allowed"}`}
+                disabled={!isStep3Valid || isSubmitting}
+                onClick={handleSubmitToSheet}
+                className={`mt-8 py-4 flex justify-center items-center gap-2 uppercase tracking-widest font-bold transition-all ${isStep3Valid && !isSubmitting ? "bg-[#FFBF00] text-black hover:shadow-[0_0_20px_rgba(255,191,0,0.4)]" : "bg-stone-800 text-stone-500 cursor-not-allowed"}`}
               >
-                Connect <ArrowRight size={20} />
+                {isSubmitting ? "Connecting..." : "Connect"} {!isSubmitting && <ArrowRight size={20} />}
               </button>
             </motion.div>
           )}
 
           {/* STEP 4: Success */}
           {step === 4 && (
-            <motion.div
-              key="step4"
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="flex flex-col items-center justify-center h-full flex-1 text-center"
-            >
+            <motion.div key="step4" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex flex-col items-center justify-center h-full flex-1 text-center">
               <motion.img
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

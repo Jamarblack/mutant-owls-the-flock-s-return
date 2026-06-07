@@ -73,22 +73,14 @@ export default function App() {
         {/* Overlay so text stays readable */}
         <div className="fixed inset-0 bg-[#0B0F19]/60 pointer-events-none" />
 
-        <header className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 md:px-10 py-5">
+        <header className="fixed top-0 inset-x-0 flex items-center justify-between px-6 md:px-10 py-5">
           <a href="/" className="flex items-center gap-3 group" aria-label="Mutant Owls home">
-            <div className="w-9 h-9 rounded-full   flex items-center justify-center text-[#FFBF00] text-xs font-bold transition-transform group-hover:scale-110 shadow-[0_0_10px_rgba(255,191,0,0.3)]">
-              {/* <img
-                src="public/owl-head.png"
-                alt=""
-                className="w-full h-full object-contain rounded-full"
-              /> */}
+            <div className="w-20 h-auto rounded-full   flex items-center bg-transperent justify-center text-[#FFBF00] text-xs font-bold transition-transform group-hover:scale-110 shadow-[0_0_10px_rgba(255,191,0,0.3)]"> 
+                <img src="/owl-head.png" alt="Mutant OWl" className="rounded-full" />
+                <span></span>
             </div>
-            <span className="font-serif  text-sm uppercase flex text-[#FFBF00] drop-shadow-md">
-              {/* <img
-                src="public/owl-text.svg"
-                alt="Mutant Owls"
-                className="w-60 h-full object-contain"
-              /> */}
-            </span>
+        <img src="/owl-text.svg" className="md:w-120 w-60 h-auto  " />   
+           
           </a>
           <ThemeToggle />
         </header>

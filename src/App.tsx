@@ -45,7 +45,9 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
-  const [isNight, setIsNight] = useState(document.documentElement.classList.contains("dark"));
+  const [isNight, setIsNight] = useState(
+    document.documentElement.classList.contains("dark")
+  );
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -61,32 +63,50 @@ export default function App() {
   return (
     <BrowserRouter>
       <div
-        className="min-h-screen text-stone-300 overflow-hidden"
+        className="min-h-screen text-stone-300 overflow-x-hidden"
         style={{
-          backgroundImage: isNight ? "url('/night-ruins.png')" : "url('/day-ruins.png')",
+          backgroundImage: isNight ? "url('/night-ruins.webp')" : "url('/day-ruins.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundColor: "#0B0F19",
+          backgroundAttachment: "fixed", // Keeps background stable on mobile scroll
         }}
       >
         {/* Overlay so text stays readable */}
-        <div className="fixed inset-0 bg-[#0B0F19]/60 pointer-events-none" />
+        <div className="fixed inset-0 bg-[#0B0F19]/60 pointer-events-none z-0" />
 
-        <header className="fixed top-0 inset-x-0 flex items-center justify-between px-6 md:px-10 py-5">
-          <a href="/" className="flex items-center gap-3 group" aria-label="Mutant Owls home">
-            <div className="w-20 h-auto rounded-full   flex items-center bg-transperent justify-center text-[#FFBF00] text-xs font-bold transition-transform group-hover:scale-110 shadow-[0_0_10px_rgba(255,191,0,0.3)]"> 
-                <img src="/owl-head.png" alt="Mutant OWl" className="rounded-full" />
-                <span></span>
+        {/* 
+          Responsive Header: 
+          Added z-50, glassmorphism background, and dynamic padding 
+        */}
+        <header className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 md:py-5 bg-[#0B0F19]/30 backdrop-blur-md border-b border-[#FFBF00]/10">
+          
+          {/* Logo - Shrinks on mobile */}
+          <a href="/" className="flex items-center shrink-0 group" aria-label="Mutant Owls home">
+            <div className="w-12 sm:w-16 md:w-20 h-auto rounded-full bg-transparent flex items-center justify-center text-[#FFBF00] transition-transform group-hover:scale-110 shadow-[0_0_10px_rgba(255,191,0,0.3)]">
+              <img src="/owl-head.png" alt="Mutant Owl" className="rounded-full w-full h-auto object-cover" />
             </div>
-        
-           
           </a>
-          <img src="/owl-text.svg" className="md:w-120 w-60 h-auto align-center  " />   
-          <ThemeToggle />
+
+          {/* 
+            Middle Text SVG - Scales fluidly to prevent overlap.
+            shrink-1 ensures it yields space to the logo and toggle if needed. 
+          */}
+          <img 
+            src="/owl-text.svg" 
+            alt="Mutant Owls"
+            className="w-32 sm:w-48 md:w-64 lg:w-80 h-auto mx-2 md:mx-4 shrink" 
+          />   
+
+          {/* Theme Toggle - Protects its width */}
+          <div className="shrink-0">
+            <ThemeToggle />
+          </div>
         </header>
 
-        <main className="relative z-10 pt-20">
+        {/* Main Content - Pushed down dynamically to clear the header */}
+        <main className="relative z-10 pt-24 md:pt-32 pb-10">
           <AnimatedRoutes />
         </main>
       </div>

@@ -5,20 +5,55 @@ import { Volume2, VolumeX } from "lucide-react";
 export function AudioToggle() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hasStarted = useRef(false); // track if audio has ever played
 
-  // Initialize the audio object once when the component mounts
   useEffect(() => {
-    // Points to the file in your public folder
-    audioRef.current = new Audio("/owl-ambient.mp3");
-    audioRef.current.loop = true; // Loops forever
-    audioRef.current.volume = 0.4; // 40% volume so it doesn't blast their ears
+    const audio = new Audio("/owl-ambient.mp3");
+    audio.loop = true;
+    audio.volume = 0.4;
+    audioRef.current = audio;
 
-    // Cleanup when component unmounts
+    const startOnInteraction = () => {
+      // Only do this once
+      if (hasStarted.current) return;
+
+      audio
+        .play()
+        .then(() => {
+          hasStarted.current = true;
+          setIsPlaying(true);
+          window.removeEventListener("click", startOnInteraction);
+          window.removeEventListener("touchstart", startOnInteraction);
+          window.removeEventListener("keydown", startOnInteraction);
+          window.removeEventListener("scroll", startOnInteraction);
+        })
+        .catch((err) => {
+          console.log("Playback failed:", err);
+        });
+    };
+
+    // Try immediately (works if user already interacted, e.g. navigated from another page)
+    audio
+      .play()
+      .then(() => {
+        hasStarted.current = true;
+        setIsPlaying(true);
+      })
+      .catch(() => {
+        // Blocked — wait for literally any interaction
+        window.addEventListener("click", startOnInteraction);
+        window.addEventListener("touchstart", startOnInteraction);
+        window.addEventListener("keydown", startOnInteraction);
+        window.addEventListener("scroll", startOnInteraction); // 👈 scroll counts too
+      });
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      window.removeEventListener("click", startOnInteraction);
+      window.removeEventListener("touchstart", startOnInteraction);
+      window.removeEventListener("keydown", startOnInteraction);
+      window.removeEventListener("scroll", startOnInteraction);
+      audio.pause();
+      audioRef.current = null;
     };
   }, []);
 
@@ -29,10 +64,7 @@ export function AudioToggle() {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      // .play() returns a promise, handling it prevents browser errors
-      audioRef.current.play().catch((error) => {
-        console.error("Audio playback failed:", error);
-      });
+      audioRef.current.play().catch(console.error);
       setIsPlaying(true);
     }
   };

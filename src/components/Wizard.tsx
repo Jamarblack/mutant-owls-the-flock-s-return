@@ -194,7 +194,7 @@ export default function Wizard() {
                       Like & Quote the Prophecy
                     </h3>
                     <p className="text-stone-500 text-xs mt-1">
-                      Quote RT with "The ruins remember"
+                      Quote RT with "The flock is coming "
                     </p>
                   </div>
                   <button onClick={() => handleTaskClick("quote", "https://x.com/MutantOwls")} className="shrink-0 ml-4">
@@ -212,7 +212,7 @@ export default function Wizard() {
                 <div className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${tasks.tag ? "border-[#FFBF00]/50 bg-[#FFBF00]/5" : "border-stone-800 bg-stone-900/50 hover:border-stone-600"}`}>
                   <div>
                     <h3 className="text-stone-200 text-sm font-medium tracking-wide">
-                      Tag 2 friends in your post
+                      Retweet and tag 2 Frens in the comment section
                     </h3>
                     <p className="text-stone-500 text-xs mt-1">Bring the crew into the flock</p>
                   </div>

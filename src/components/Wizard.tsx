@@ -197,7 +197,7 @@ export default function Wizard() {
                       Quote RT with "The flock is coming "
                     </p>
                   </div>
-                  <button onClick={() => handleTaskClick("quote", "https://x.com/MutantOwls")} className="shrink-0 ml-4">
+                  <button onClick={() => handleTaskClick("quote", "https://x.com/mutantowls/status/2065464267864686758")} className="shrink-0 ml-4">
                     {tasks.quote ? (
                       <CheckCircle className="text-[#FFBF00]" size={24} />
                     ) : (
@@ -216,7 +216,7 @@ export default function Wizard() {
                     </h3>
                     <p className="text-stone-500 text-xs mt-1">Bring the crew into the flock</p>
                   </div>
-                  <button onClick={() => handleTaskClick("tag", "https://x.com/MutantOwls")} className="shrink-0 ml-4">
+                  <button onClick={() => handleTaskClick("tag", "https://x.com/mutantowls/status/2065464267864686758")} className="shrink-0 ml-4">
                     {tasks.tag ? (
                       <CheckCircle className="text-[#FFBF00]" size={24} />
                     ) : (
